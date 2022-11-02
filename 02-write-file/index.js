@@ -6,14 +6,14 @@ const { stdin } = process;
 const output = fs.createWriteStream(path.join(__dirname, 'text.txt'));
 const readlineInterface = readline.createInterface(stdin);
 
-console.log('Введите текст в консоль:');
+console.log('Hello. Enter text in the console:');
 
 readlineInterface.on('line', (line) => {
-  line === 'exit' ? readlineInterface.close() : output.write(line);
+  line === 'exit' ? process.exit() : output.write(`${line}\n`);
 });
-readlineInterface.on('SIGINT', () => {
-  readlineInterface.close();
+process.on('SIGINT', () => {
+  process.exit();
 });
-readlineInterface.on('close', () => {
-  console.log('Прощайте');
+process.on('exit', () => {
+  console.log('Goodbye');
 });
