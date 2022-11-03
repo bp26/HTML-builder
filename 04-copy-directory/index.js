@@ -7,7 +7,9 @@ const createDirectoryAsync = async (dir, newDir) => {
 };
 
 const cleanDirectoryAsync = async (newDir) => {
-  fsPromises.rm(newDir, { recursive: true, force: true });
+  return fsPromises.rm(newDir, { recursive: true }).catch((err) => {
+    return null;
+  });
 };
 
 const readFilesAsync = async (dir) => {
