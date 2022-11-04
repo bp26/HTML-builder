@@ -1,7 +1,7 @@
 const path = require('path');
 const fsPromises = require('fs/promises');
 
-const createDirectory = async (dir, newDir) => {
+const createDirectory = async (newDir) => {
   return fsPromises.mkdir(newDir, { recursive: true });
 };
 
@@ -27,7 +27,7 @@ const copyFile = async (filepath, newDir) => {
 
 const copyFilesInDirectory = async (dir, newDir) => {
   await cleanDirectory(newDir);
-  createDirectory(dir, newDir);
+  createDirectory(newDir);
   const files = await readFiles(dir);
   for (const file of files) {
     const filepath = path.join(dir, file.name);
