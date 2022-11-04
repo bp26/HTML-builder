@@ -1,6 +1,5 @@
 const path = require('path');
 const fsPromises = require('fs/promises');
-const { resolve } = require('path');
 
 const createDirectoryAsync = async (dir, newDir) => {
   return fsPromises.mkdir(newDir, { recursive: true });
@@ -43,6 +42,5 @@ const copyFilesInDirectory = async (dir, newDir) => {
 
 const dir = path.join(__dirname, 'files');
 const newDir = path.join(__dirname, 'files-copy');
-//node 04-copy-directory
 
 copyFilesInDirectory(dir, newDir);
