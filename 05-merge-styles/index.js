@@ -18,12 +18,7 @@ const isCss = (filepath) => {
   return extension === '.css' ? true : false;
 };
 
-const createEmptyBundle = async (dist) => {
-  return fsPromises.writeFile(path.join(dist, 'bundle.css'), '');
-};
-
 const assembleBundleToDist = async (src, dist) => {
-  await createEmptyBundle(dist);
   const output = fs.createWriteStream(path.join(dist, 'bundle.css'));
   const files = await readFiles(src);
   for (const file of files) {
