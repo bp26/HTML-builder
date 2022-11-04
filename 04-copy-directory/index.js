@@ -1,39 +1,39 @@
 const path = require('path');
 const fsPromises = require('fs/promises');
 
-const createDirectoryAsync = async (dir, newDir) => {
+const createDirectory = async (dir, newDir) => {
   return fsPromises.mkdir(newDir, { recursive: true });
 };
 
-const cleanDirectoryAsync = async (newDir) => {
+const cleanDirectory = async (newDir) => {
   return fsPromises.rm(newDir, { recursive: true }).catch((err) => {
     return null;
   });
 };
 
-const readFilesAsync = async (dir) => {
+const readFiles = async (dir) => {
   return fsPromises.readdir(dir, {
     withFileTypes: true,
   });
 };
 
-const isDirectoryAsync = async (filepath) => {
+const isDirectory = async (filepath) => {
   return (await fsPromises.stat(filepath)).isDirectory();
 };
 
-const copyFileAsync = async (filepath, newDir) => {
+const copyFile = async (filepath, newDir) => {
   return fsPromises.copyFile(filepath, newDir);
 };
 
 const copyFilesInDirectory = async (dir, newDir) => {
-  await cleanDirectoryAsync(newDir);
-  createDirectoryAsync(dir, newDir);
-  const files = await readFilesAsync(dir);
+  await cleanDirectory(newDir);
+  createDirectory(dir, newDir);
+  const files = await readFiles(dir);
   for (const file of files) {
     const filepath = path.join(dir, file.name);
-    const isDirectory = await isDirectoryAsync(filepath);
-    if (!isDirectory) {
-      copyFileAsync(filepath, path.join(newDir, file.name));
+    const isDirectoryBoolean = await isDirectory(filepath);
+    if (!isDirectoryBoolean) {
+      copyFile(filepath, path.join(newDir, file.name));
     } else {
       copyFilesInDirectory(filepath, path.join(newDir, file.name));
     }
