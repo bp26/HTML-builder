@@ -2,7 +2,7 @@ const path = require('path');
 const fsPromises = require('fs/promises');
 const fs = require('fs');
 
-const readFilesAsync = async (dir) => {
+const readFiles = async (dir) => {
   return fsPromises.readdir(dir, {
     withFileTypes: true,
   });
@@ -25,7 +25,7 @@ const createEmptyBundle = async (dist) => {
 const assembleBundleToDist = async (src, dist) => {
   await createEmptyBundle(dist);
   const output = fs.createWriteStream(path.join(dist, 'bundle.css'));
-  const files = await readFilesAsync(src);
+  const files = await readFiles(src);
   for (const file of files) {
     const filepath = path.join(src, file.name);
     const isFileBoolean = await isFile(filepath);
