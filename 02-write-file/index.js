@@ -8,15 +8,15 @@ const filepath = path.join(__dirname, 'text.txt');
 const readlineInterface = readline.createInterface(stdin);
 
 const initFile = async (filepath) => {
-  fsPromises.access(filepath, fs.constants.F_OK).catch(() => {
-    fs.writeFile(filepath, '', (err) => {
+  return fsPromises.access(filepath, fs.constants.F_OK).catch(() => {
+    fsPromises.writeFile(filepath, '', (err) => {
       if (err) throw err;
     });
   });
 };
 
-const appendToFile = (line) => {
-  fs.appendFile(filepath, `${line}\n`, (err) => {
+const appendToFile = async (line) => {
+  return fsPromises.appendFile(filepath, `${line}\n`, (err) => {
     if (err) throw err;
   });
 };
