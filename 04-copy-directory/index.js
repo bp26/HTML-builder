@@ -11,7 +11,7 @@ const cleanDirectory = async (newDir) => {
   });
 };
 
-const readFiles = async (dir) => {
+const readDirectory = async (dir) => {
   return fsPromises.readdir(dir, {
     withFileTypes: true,
   });
@@ -28,7 +28,7 @@ const copyFile = async (filepath, newDir) => {
 const copyFilesInDirectory = async (dir, newDir) => {
   await cleanDirectory(newDir);
   createDirectory(newDir);
-  const files = await readFiles(dir);
+  const files = await readDirectory(dir);
   for (const file of files) {
     const filepath = path.join(dir, file.name);
     const isDirectoryBoolean = await isDirectory(filepath);

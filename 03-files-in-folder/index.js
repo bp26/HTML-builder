@@ -1,7 +1,7 @@
 const path = require('path');
 const fsPromises = require('fs/promises');
 
-const readFiles = async (path) => {
+const readDirectory = async (path) => {
   return fsPromises.readdir(path, {
     withFileTypes: true,
   });
@@ -30,7 +30,7 @@ const getSize = (stats) => {
 };
 
 const outputInformation = async (dir) => {
-  const files = await readFiles(dir);
+  const files = await readDirectory(dir);
   for (const file of files) {
     const filepath = path.join(dir, file.name);
     const stats = await getStats(filepath);
