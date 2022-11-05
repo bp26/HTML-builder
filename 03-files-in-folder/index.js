@@ -25,8 +25,7 @@ const getExtension = (filepath) => {
 
 const getSize = (stats) => {
   const bytes = stats.size;
-  const kb = bytes / 1000;
-  return `${kb}kb`;
+  return `${bytes} bytes`;
 };
 
 const outputInformation = async (dir) => {
