@@ -19,7 +19,13 @@ const cleanDirectory = async (dir) => {
     return null;
   });
 };
-
+const createWriteStream = async (filepath) => {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(filepath);
+    console.log(output);
+    resolve(output);
+  });
+};
 //AssembleHtmlTemplate
 
 const getComponents = async (compDir) => {
@@ -46,11 +52,12 @@ const getFullTemplate = (templateData, components) => {
   return data;
 };
 const assembleHtmlTemplateToDist = async (src, compDir, dist) => {
-  const output = fs.createWriteStream(path.join(dist, 'index.html'));
+  const output = await createWriteStream(path.join(dist, 'index.html'));
   const components = await getComponents(compDir);
   const templateData = await readFile(src);
   const fullTemplate = getFullTemplate(templateData, components);
   output.write(fullTemplate);
+  output.end();
 };
 
 //AssembleCssBundle
@@ -63,7 +70,7 @@ const isCss = (filepath) => {
   return extension === '.css' ? true : false;
 };
 const assembleCssBundleToDist = async (src, dist) => {
-  const output = fs.createWriteStream(path.join(dist, 'style.css'));
+  const output = await createWriteStream(path.join(dist, 'style.css'));
   const files = await readDirectory(src);
   for (const file of files) {
     const filepath = path.join(src, file.name);
@@ -74,6 +81,7 @@ const assembleCssBundleToDist = async (src, dist) => {
       output.write(data);
     }
   }
+  output.end();
 };
 
 //CopyDirectory

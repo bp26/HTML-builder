@@ -12,6 +12,13 @@ const readDirectory = async (dir) => {
   });
 };
 
+const createWriteStream = async (filepath) => {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(filepath);
+    resolve(output);
+  });
+};
+
 const isFile = async (filepath) => {
   const stats = await fsPromises.stat(filepath);
   return stats.isFile();
@@ -23,7 +30,7 @@ const isCss = (filepath) => {
 };
 
 const assembleBundleToDist = async (src, dist) => {
-  const output = fs.createWriteStream(path.join(dist, 'bundle.css'));
+  const output = await createWriteStream(path.join(dist, 'bundle.css'));
   const files = await readDirectory(src);
   for (const file of files) {
     const filepath = path.join(src, file.name);
@@ -34,6 +41,7 @@ const assembleBundleToDist = async (src, dist) => {
       output.write(data);
     }
   }
+  output.end();
 };
 
 const src = path.join(__dirname, 'styles');
