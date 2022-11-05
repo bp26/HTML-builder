@@ -1,10 +1,12 @@
 const path = require('path');
 const fsPromises = require('fs/promises');
 const fs = require('fs');
-const readline = require('node:readline');
 
 //Common
-const readFiles = async (dir) => {
+const readFile = async (filepath) => {
+  return fsPromises.readFile(filepath, 'utf-8');
+};
+const readDirectory = async (dir) => {
   return fsPromises.readdir(dir, {
     withFileTypes: true,
   });
@@ -12,38 +14,44 @@ const readFiles = async (dir) => {
 const createDirectory = async (newDir) => {
   return fsPromises.mkdir(newDir, { recursive: true });
 };
-const cleanDirectory = async (newDir) => {
-  return fsPromises.rm(newDir, { recursive: true }).catch((err) => {
+const cleanDirectory = async (dir) => {
+  return fsPromises.rm(dir, { recursive: true }).catch((err) => {
     return null;
   });
 };
 
 //AssembleHtmlTemplate
-const createEmptyTemplate = async (dist) => {
-  return fsPromises.writeFile(path.join(dist, 'index.html'), '');
-};
 
-const assembleHtmlTemplateToDist = async (src, dist) => {
-  await createDirectory(dist);
-  await createEmptyTemplate(dist);
-  const input = fs.createReadStream(src, 'utf-8');
-  const output = fs.createWriteStream(path.join(dist, 'index.html'));
-  const rl = readline.createInterface(input);
-  rl.on('line', (line) => {
-    if (line.includes('{{')) {
-      const componentName = line.trim().slice(2, -2);
-      const component = fs.createReadStream(
-        path.join(__dirname, 'components', `${componentName}.html`)
-      );
-      component.pipe(output);
-    } else {
-      output.write(`${line}\n`);
+const getComponents = async (compDir) => {
+  const componentFiles = await readDirectory(compDir);
+  return componentFiles.reduce(async (prevPromise, file) => {
+    if (file.name.slice(-5) === '.html') {
+      const arr = await prevPromise;
+      const name = `{{${file.name.slice(0, -5)}}}`;
+      const data = await readFile(path.join(compDir, file.name));
+      const component = { name, data };
+      return [...arr, component];
+    }
+  }, Promise.resolve([]));
+};
+const getFullTemplate = (templateData, components) => {
+  let data = templateData;
+  components.forEach((component) => {
+    if (data.includes(component.name)) {
+      let search = new RegExp(component.name, 'g');
+      let newData = data.replace(search, component.data);
+      data = newData;
     }
   });
+  return data;
 };
-
-const dist = path.join(__dirname, 'project-dist');
-assembleHtmlTemplateToDist(path.join(__dirname, 'template.html'), dist);
+const assembleHtmlTemplateToDist = async (src, compDir, dist) => {
+  const output = fs.createWriteStream(path.join(dist, 'index.html'));
+  const components = await getComponents(compDir);
+  const templateData = await readFile(src);
+  const fullTemplate = getFullTemplate(templateData, components);
+  output.write(fullTemplate);
+};
 
 //AssembleCssBundle
 const isFile = async (filepath) => {
@@ -54,20 +62,16 @@ const isCss = (filepath) => {
   const extension = path.extname(filepath);
   return extension === '.css' ? true : false;
 };
-const createEmptyBundle = async (dist) => {
-  return fsPromises.writeFile(path.join(dist, 'style.css'), '');
-};
 const assembleCssBundleToDist = async (src, dist) => {
-  await createEmptyBundle(dist);
   const output = fs.createWriteStream(path.join(dist, 'style.css'));
-  const files = await readFiles(src);
+  const files = await readDirectory(src);
   for (const file of files) {
     const filepath = path.join(src, file.name);
     const isFileBoolean = await isFile(filepath);
     const isCssBoolean = isCss(filepath);
     if (isFileBoolean & isCssBoolean) {
-      const input = fs.createReadStream(filepath, 'utf-8');
-      input.pipe(output);
+      const data = await readFile(filepath);
+      output.write(data);
     }
   }
 };
@@ -80,9 +84,8 @@ const copyFile = async (filepath, newDir) => {
   return fsPromises.copyFile(filepath, newDir);
 };
 const copyFilesInDirectory = async (dir, newDir) => {
-  await cleanDirectory(newDir);
   createDirectory(newDir);
-  const files = await readFiles(dir);
+  const files = await readDirectory(dir);
   for (const file of files) {
     const filepath = path.join(dir, file.name);
     const isDirectoryBoolean = await isDirectory(filepath);
@@ -95,6 +98,20 @@ const copyFilesInDirectory = async (dir, newDir) => {
 };
 
 //BuildPage
-const buildPage = async () => {};
+const buildPage = async (dist) => {
+  await cleanDirectory(dist);
+  await createDirectory(dist);
+  await assembleHtmlTemplateToDist(
+    path.join(__dirname, 'template.html'),
+    path.join(__dirname, 'components'),
+    dist
+  );
+  await assembleCssBundleToDist(path.join(__dirname, 'styles'), dist);
+  copyFilesInDirectory(
+    path.join(__dirname, 'assets'),
+    path.join(dist, 'assets')
+  );
+};
 
-// node 06-build-page
+const dist = path.join(__dirname, 'project-dist');
+buildPage(dist);
