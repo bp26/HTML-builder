@@ -2,6 +2,10 @@ const path = require('path');
 const fsPromises = require('fs/promises');
 const fs = require('fs');
 
+const readFile = async (filepath) => {
+  return fsPromises.readFile(filepath, 'utf-8');
+};
+
 const readDirectory = async (dir) => {
   return fsPromises.readdir(dir, {
     withFileTypes: true,
@@ -26,8 +30,8 @@ const assembleBundleToDist = async (src, dist) => {
     const isFileBoolean = await isFile(filepath);
     const isCssBoolean = isCss(filepath);
     if (isFileBoolean & isCssBoolean) {
-      const input = fs.createReadStream(filepath, 'utf-8');
-      input.pipe(output);
+      const data = await readFile(filepath);
+      output.write(data);
     }
   }
 };
