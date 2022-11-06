@@ -27,7 +27,7 @@ const copyFile = async (filepath, newDir) => {
 
 const copyFilesInDirectory = async (dir, newDir) => {
   await cleanDirectory(newDir);
-  createDirectory(newDir);
+  await createDirectory(newDir);
   const files = await readDirectory(dir);
   for (const file of files) {
     const filepath = path.join(dir, file.name);
