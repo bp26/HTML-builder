@@ -22,12 +22,11 @@ const cleanDirectory = async (dir) => {
 const createWriteStream = async (filepath) => {
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(filepath);
-    console.log(output);
     resolve(output);
   });
 };
-//AssembleHtmlTemplate
 
+//AssembleHtmlTemplate
 const getComponents = async (compDir) => {
   const componentFiles = await readDirectory(compDir);
   return componentFiles.reduce(async (prevPromise, file) => {
@@ -92,7 +91,7 @@ const copyFile = async (filepath, newDir) => {
   return fsPromises.copyFile(filepath, newDir);
 };
 const copyFilesInDirectory = async (dir, newDir) => {
-  createDirectory(newDir);
+  await createDirectory(newDir);
   const files = await readDirectory(dir);
   for (const file of files) {
     const filepath = path.join(dir, file.name);
