@@ -41,29 +41,26 @@ const getComponents = async (compDir) => {
 };
 const getFullTemplate = (templateData, components) => {
   let data = templateData;
-  components.forEach((component) => {
-    if (data.includes(component.name)) {
-      let search = new RegExp(component.name, 'g');
-      let newData = data.replace(search, component.data);
-      data = newData;
-    }
-  });
-  checkMissingComponents(templateData, components);
-  return data;
-};
-const checkMissingComponents = (data, components) => {
   const regExp = /{{[a-z]*}}/gm;
   const matches = data.matchAll(regExp);
   for (const match of matches) {
     const filteredComponent = components.find(
       (component) => component.name === match[0]
     );
-    if (!filteredComponent) {
+    if (filteredComponent) {
+      let search = new RegExp(filteredComponent.name, 'g');
+      let newData = data.replace(search, filteredComponent.data);
+      data = newData;
+    } else {
+      let search = new RegExp(match[0], 'g');
+      let newData = data.replace(search, '');
+      data = newData;
       console.log(
         `Добавьте компонент ${match[0].slice(2, -2)} в папку components`
       );
     }
   }
+  return data;
 };
 const assembleHtmlTemplateToDist = async (src, compDir, dist) => {
   const output = await createWriteStream(path.join(dist, 'index.html'));
