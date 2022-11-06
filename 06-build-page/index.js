@@ -48,7 +48,22 @@ const getFullTemplate = (templateData, components) => {
       data = newData;
     }
   });
+  checkMissingComponents(templateData, components);
   return data;
+};
+const checkMissingComponents = (data, components) => {
+  const regExp = /{{[a-z]*}}/gm;
+  const matches = data.matchAll(regExp);
+  for (const match of matches) {
+    const filteredComponent = components.find(
+      (component) => component.name === match[0]
+    );
+    if (!filteredComponent) {
+      console.log(
+        `Добавьте компонент ${match[0].slice(2, -2)} в папку components`
+      );
+    }
+  }
 };
 const assembleHtmlTemplateToDist = async (src, compDir, dist) => {
   const output = await createWriteStream(path.join(dist, 'index.html'));
