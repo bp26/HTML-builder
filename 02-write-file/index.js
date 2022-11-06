@@ -24,7 +24,7 @@ const appendToFile = async (line) => {
 console.log('Hello. Enter text in the console:');
 
 readlineInterface.on('line', (line) => {
-  line === 'exit'
+  line.trim() === 'exit'
     ? process.exit()
     : initFile(filepath).then(() => appendToFile(line));
 });
