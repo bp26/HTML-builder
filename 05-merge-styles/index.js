@@ -38,7 +38,7 @@ const assembleBundleToDist = async (src, dist) => {
     const isCssBoolean = isCss(filepath);
     if (isFileBoolean & isCssBoolean) {
       const data = await readFile(filepath);
-      output.write(data);
+      output.write(data + '\n');
     }
   }
   output.end();
